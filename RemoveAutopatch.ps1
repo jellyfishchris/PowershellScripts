@@ -35,16 +35,30 @@ function Unenroll-WindowsUpdateAssets {
 }
 
 
-
-
 Connect-MgGraph -Scopes "Device.Read.All","WindowsUpdates.ReadWrite.All" -Environment Global -NoWelcome
 
-$azureADDevices = Invoke-MgGraphRequest -Method GET -Uri "https://graph.microsoft.com/beta/admin/windows/updates/updatableAssets/microsoft.graph.windowsUpdates.azureADDevice"
+$uri = "https://graph.microsoft.com/beta/admin/windows/updates/updatableAssets/microsoft.graph.windowsUpdates.azureADDevice"
+
+$allDevices = @()
+
+do {
+    $response = Invoke-MgGraphRequest -Method GET -Uri $uri
+
+    # Add current page of devices
+    if ($response.value) {
+        $allDevices += $response.value
+    }
+
+    # Get next page URL if present
+    $uri = $response.'@odata.nextLink'
+
+} while ($uri)
+
 $featureIds = @()
 $qualityIds = @()
 $driverIds = @()
 
-foreach ($device in $azureADDevices.value) 
+foreach ($device in $allDevices.value) 
 {
     if ($device.enrollment.feature.enrollmentState -ne "notEnrolled") 
     {
