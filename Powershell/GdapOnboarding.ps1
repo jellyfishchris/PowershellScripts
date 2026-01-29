@@ -116,9 +116,9 @@ $Assignments = @(
 )
 
 
-foreach ($a in $assignments) {
+foreach ($a in $Assignments) {
     Add-GdapAccessAssignment `
         -RelationshipId $relationshipId `
         -GroupId $a.GroupId `
-        -RoleDefinitionId $a.RoleId
+        -RoleDefinitionId $a.RoleDefinitionId
 }
